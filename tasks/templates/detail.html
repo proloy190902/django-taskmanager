@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% load static %}
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Details page</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
+      integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
+      integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"
+      crossorigin="anonymous"
+    ></script>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <div>
+        <div class="taskList text-decoration-none row mt-5">
+          <div
+            class="taskItem alert alert-success px-2 col-lg-8 col-sm-12 mx-auto"
+          >
+            <div class="d-flex justify-content-center my-4">
+              <img
+                src="http://localhost:8000/media/{{task.taskImage}}"
+                class="object-fit-cover overflow-hidden"
+              />
+            </div>
+
+            <div class="p-3">
+              {% load tz%}
+              <h3 class="mb-2">{{ task.title }}</h3>
+              <span class="taskDate" style="margin-right: 20px">
+          
+                <i class="fa fa-calendar text-secondary"></i
+                >&nbsp;{{task.createdAt|timezone:"Asia/Dhaka"|date:"F j Y H:i A"}}</span
+              >
+              <span class="taskDate">
+                <i class="fa fa-calendar text-danger"></i
+                >&nbsp;{{task.dueDate|timezone:"Asia/Dhaka"|date:"F j Y H:i A"}}</span
+              >
+              <p class="fs-6 my-2">{{task.description }}</p>
+              <div class="my-3">
+               <div class="d-flex gap-3">
+                <a href="/" class="btn btn-primary"><i class="fa-solid fa-arrow-left"></i>&nbsp;Back</a>
+
+
+                {% if task.user.username == user.username or user.is_superuser  %}
+                <form method="post" enctype="multipart/form-data">
+                  {% csrf_token %}
+            
+                  <button
+                    name="task"
+                    value="{{task.id}}"
+                   type="button"
+                    class="btn btn-danger"
+                    data-bs-toggle="modal" data-bs-target="#deleteconfirm"
+                  >
+                    <i class="fa-solid fa-trash"></i> Delete
+                  </button>
+                  <a href="/" class="btn btn-primary " data-bs-toggle="modal" data-bs-target="#updateform"><i class="fas fa-edit"></i>&nbsp;Update</a>
+                    <!-- start delete modal -->
+                <div class="modal fade" id="deleteconfirm" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Task Delete </h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                      Are you sure?
+                      this action can not be undone
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button"  class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" name="taskDelete" class="btn btn-primary">Confirm</button>
+                      </div>
+                    </div>
+                  </div>
+                 </div>
+                <!-- end delete modal -->
+                </form>
+                {% endif %}
+
+              
+               <!-- start update modal -->
+                <div class="modal fade" id="updateform" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Update Task</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                       
+                        
+                            <form method="post" enctype="multipart/form-data">
+                              {% csrf_token %}
+                
+                              <div class="mb-3">
+                                <label for="id_title" class="form-label">Title:</label>
+                                <textarea
+                                  type="text"
+                                  id="id_title"
+                                  name="title"
+                                  class="form-control"
+                                  placeholder="add title"
+                                 
+                                >{{task.title}}</textarea>
+                              </div>
+                
+                              <div class="mb-3">
+                                <label for="id_description" class="form-label"
+                                  >Description:</label
+                                >
+                                <textarea
+                                  id="id_description"
+                                  name="description"
+                                  class="form-control "
+                                 rows="3"
+                                   >{{task.description}}</textarea>
+                              </div>
+                
+                              <div class="mb-3">
+                                <label for="id_dueDate" class="form-label">Due Date:</label>
+                                <input
+                                  type="datetime-local"
+                                  id="id_dueDate"
+                                  name="dueDate"
+                                  class="form-control"
+                                  value="{{task.dueDate|date:'Y-m-d'}}T{{task.dueDate|date:'H:i:s' }}"
+                                />
+                          
+                              </div>
+                
+                              <div class="mb-3">
+                                <label for="id_priority" class="form-label"
+                                  >Priority:</label
+                                >
+                                <select
+                                  id="id_priority"
+                                  name="priority"
+                                  class="form-select">
+                                  <option value="LOW" name="low" {% if task.priority == 'LOW' %}selected{%endif %}>Low</option>
+                                  <option value="MEDIUM" name="medium" {% if task.priority == 'MEDIUM' %}selected{% endif %} >Medium</option>
+                                  <option value="HIGH" name="hight" {% if task.priority == 'HIGH' %}selected{% endif %}>High</option>
+                                </select>
+                              </div>
+                
+                              <div class="mb-3">
+                                <div class="form-check">
+                                  <input
+                                    type="checkbox"
+                                    id="id_isComplete"
+                                    name="isComplete"
+                                    class="form-check-input"
+                                    
+                                    {% if task.isComplete %}checked{% endif %}
+                                  />
+                                  <label for="id_isComplete" class="form-check-label"
+                                    >Is Complete</label
+                                  >
+                                </div>
+                              </div>
+                
+                              <div class="mb-3" id="taskImageField">
+
+                                <p>current Image: </p>
+                                <img name="taskImageUpdate" src="http://localhost:8000/media/{{task.taskImage}}" style="height: 100px; width: 25s0px;"/>
+                                <br/>
+                                Note: if you not update image left it as it is
+                                <br/>
+                                <label for="id_taskImage" class="form-label "
+                                  >Task Image:</label
+                                >
+                                <input
+                                  type="file"
+                                  id="id_taskImage"
+                                  name="taskImage"
+                                  class="form-control"
+                                  value={{task.taskImage}}
+                                />
+                              </div>
+                
+                              <button type="submit"name="taskUpdate" class="btn btn-success">
+                                Submit
+                              </button>
+                            </form>
+                          </div>
+                        </div>
+                      </div>
+                    
+                    </div>
+                  </div>
+                </div>
+                <!-- end update modal -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
