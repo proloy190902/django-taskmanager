@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>taskApp - Django</title>
+    {% load static %}
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    {% comment %}
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="{% static 'css/style.css' %}"
+    />
+    {% endcomment %}
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="text-center pt-5 pb-2">Task Manager</h1>
+      <div class="d-flex justify-content-center text-center">
+        {% if request.user.is_authenticated %} {%endif%}
+
+        <div class="dropdown mb-5">
+          <button
+            class="btn btn-success dropdown-toggle"
+            type="button"
+            id="dropdownMenuButton1"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+          >
+            <i class="fa-solid fa-user"></i> {{request.user}}
+          </button>
+          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+            <li>
+              <a
+                class="dropdown-item"
+                type="button"
+                data-bs-toggle="modal"
+                data-bs-target="#deleteconfirm"
+              >
+                <i class="fa fa-sign-out" aria-hidden="true"></i> Logout
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <!-- Create Task Modal Start-->
+      <div
+        class="modal fade"
+        id="exampleModal"
+        tabindex="-1"
+        aria-labelledby="exampleModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">Add Task</h1>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                  <label for="id_title" class="form-label">Title:</label>
+                  <input
+                    type="text"
+                    id="id_title"
+                    name="title"
+                    class="form-control"
+                    placeholder="add title"
+                    required
+                  />
+                </div>
+
+                <div class="mb-3">
+                  <label for="id_description" class="form-label"
+                    >Description:</label
+                  >
+                  <textarea
+                    id="id_description"
+                    name="description"
+                    class="form-control"
+                    rows="3"
+                    placeholder="add description"
+                    required
+                  ></textarea>
+                </div>
+
+                <div class="mb-3">
+                  <label for="id_dueDate" class="form-label">Due Date:</label>
+                  <input
+                    type="datetime-local"
+                    id="id_dueDate"
+                    name="dueDate"
+                    class="form-control"
+                    required
+                  />
+                </div>
+
+                <div class="mb-3">
+                  <label for="id_priority" class="form-label">Priority:</label>
+                  <select id="id_priority" name="priority" class="form-select">
+                    <option value="LOW" name="low">Low</option>
+                    <option value="MEDIUM" name="medium">Medium</option>
+                    <option value="HIGH" name="hight">High</option>
+                  </select>
+                </div>
+
+                <div class="mb-3">
+                  <div class="form-check">
+                    <input
+                      type="checkbox"
+                      id="id_isComplete"
+                      name="isComplete"
+                      class="form-check-input"
+                    />
+                    <label for="id_isComplete" class="form-check-label"
+                      >Is Complete</label
+                    >
+                  </div>
+                </div>
+
+                <div class="mb-3" id="taskImageField">
+                  <label for="id_taskImage" class="form-label"
+                    >Task Image:</label
+                  >
+                  <input
+                    type="file"
+                    id="id_taskImage"
+                    name="taskImage"
+                    class="form-control"
+                    required
+                  />
+                </div>
+
+                <button type="submit" name="taskAdd" class="btn btn-success">
+                  Submit
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Create Task Modal End -->
+    <!-- sesrch, filter nd task start-->
+    <div class="mt-2">
+      <div class="taskList text-decoration-none row">
+        <div class="col-7 mx-auto">
+          <div class="input-group mb-3">
+            <input
+              type="text"
+              class="form-control"
+              placeholder="search by title"
+              aria-label="search by title"
+              aria-describedby="basic-addon2"
+              id="searchInput"
+            />
+            <button
+              class="input-group-text"
+              id="searchButton"
+              type="button"
+              value="{input.value}"
+            >
+              search
+            </button>
+            <!-- Button trigger modal -->
+            <button
+              type="button"
+              class="btn btn-primary"
+              data-bs-toggle="modal"
+              data-bs-target="#exampleModal"
+            >
+              <i class="fa-solid fa-plus"></i>&nbsp;Add Task
+            </button>
+          </div>
+
+          <div
+            class="d-flex align-content-center justify-content-center gap-3 mb-2"
+          >
+            <label class="p-2 fs-6">Filter: </label>
+
+            <select
+              class="form-select"
+              aria-label="sort by priority"
+              id="ByPriority"
+            >
+              <option selected>By priority</option>
+              <option value="HIGH">high</option>
+              <option value="MEDIUM">medium</option>
+              <option value="LOW">low</option>
+            </select>
+            <select
+              class="form-select"
+              aria-label="Default select example"
+              id="ByStatus"
+            >
+              <option selected>By status</option>
+              <option value="Completed">Completed</option>
+              <option value="Due">Due</option>
+            </select>
+          </div>
+        </div>
+
+        {% for task in tasks %}
+
+        <div
+          class="taskItem alert alert-success px-2 col-lg-8 col-sm-12 mx-auto d-flex justify-content-between align-content-center"
+          data-priority="{{ task.priority }}"
+          data-status="{% if task.isComplete %}Completed{% else %}Due{% endif %}"
+          data-created="{{ task.createdAt }}"
+          data-due="{{ task.dueDate }}"
+        >
+          <div class="d-flex">
+            <div class="p-3">
+              <img
+                src="http://localhost:8000/media/{{task.taskImage}}"
+                class="object-fit-cover"
+                style="width: 80px"
+              />
+            </div>
+
+            <div class="p-3">
+              <p class="taskItemTitle">
+                {{ task.title }} {% if task.isComplete %}
+                <span class="badge text-bg-success">Completed </span>
+                {% else %}
+                <span class="badge text-bg-danger">Due </span>
+                {% endif %}
+              </p>
+              {% load tz%}
+              <span class="taskDate" style="margin-right: 20px">
+                {%if task.user%}
+                <i class="fa fa-user"></i>&nbsp;{{task.user.username}} {%endif%}
+
+                <!-- <i class="fas fa-star"></i>
+                <i class="fas fa-exclamation-circle"></i>
+                <i class="fas fa-check-circle"></i> -->
+                <span class="badge text-bg-success">
+                  {%if task.priority %}
+                  <i class="fa fa-level-up" aria-hidden="true"></i>
+                  {%endif%} {{task.priority}}
+                </span>
+                <br/>
+                <i class="fa fa-calendar text-secondary"></i>&nbsp;
+                {{task.createdAt|timezone:"Asia/Dhaka"|date:"F j Y H:i A"}}
+              </span>
+              <span class="taskDate">
+                <i class="fa fa-calendar text-danger"></i>&nbsp;
+                {{task.dueDate|timezone:"Asia/Dhaka"|date:"F j Y H:i A"}}</span
+              >
+            </div>
+          </div>
+          <a
+            href="details/{{task.id}}"
+            class="fs-4 p-3"
+            name="details"
+            id="{{task.id}}"
+          >
+            <i class="fa-solid fa-ellipsis"></i>
+          </a>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- logoutconfirm modal start-->
+      <div
+        class="modal fade"
+        id="deleteconfirm"
+        tabindex="-1"
+        aria-labelledby="exampleModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="exampleModalLabel">
+                User logout
+              </h1>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              Are you sure? this action can not be undone
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Cancel
+              </button>
+              <a href="/logout/" type="submit" class="btn btn-primary">
+                Confirm
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- logoutconfirm modal end -->
+    </div>
+    <!-- sesrch, filter and task end-->
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const searchInput = document.getElementById("searchInput");
+        const searchButton = document.getElementById("searchButton");
+
+        searchInput.addEventListener("keyup", function () {
+          const searchText = searchInput.value.toLowerCase();
+
+          document.querySelectorAll(".taskItem").forEach(function (taskItem) {
+            const taskTitle = taskItem
+              .querySelector(".taskItemTitle")
+              .innerText.toLowerCase();
+
+            // Check if the task title contains the search query
+            if (taskTitle.includes(searchText)) {
+              taskItem.classList.remove("d-none");
+              taskItem.classList.add("d-flex");
+            } else {
+              taskItem.classList.remove("d-flex");
+              taskItem.classList.add("d-none");
+            }
+          });
+        });
+      });
+    </script>
+    <script>
+      // Get references to select dropdowns and task container
+
+      const prioritySelect = document.getElementById("ByPriority");
+      const statusSelect = document.getElementById("ByStatus");
+      const taskContainer = document.getElementById("FaskContainer");
+
+      // Listen for change events on select dropdowns
+
+      prioritySelect.addEventListener("change", applyFilters);
+      statusSelect.addEventListener("change", applyFilters);
+
+      function applyFilters() {
+        const priority = prioritySelect.value;
+        const status = statusSelect.value;
+
+        const tasks = document.querySelectorAll(".taskItem");
+        tasks.forEach((task) => {
+          const taskPriority = task.dataset.priority;
+          const taskStatus = task.dataset.status;
+
+          const priorityMatch =
+            priority === "By priority" || taskPriority === priority;
+          const statusMatch = status === "By status" || taskStatus === status;
+
+          if (
+            (priority === "By priority" || taskPriority === priority) &&
+            (status === "By status" || taskStatus === status)
+          ) {
+            task.classList.remove("d-none");
+            task.classList.add("d-flex");
+          } else {
+            task.classList.remove("d-flex");
+            task.classList.add("d-none");
+          }
+        });
+      }
+    </script>
+  </body>
+</html>
